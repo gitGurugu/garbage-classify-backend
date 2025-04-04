@@ -1,6 +1,6 @@
 # SilentRhythm
 
-无声之韵——智能手语双向翻译系统
+garbage-hero
 
 ## Git 使用规范
 
