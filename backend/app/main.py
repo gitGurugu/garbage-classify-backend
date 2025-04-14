@@ -39,7 +39,7 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 
 @app.get("/")
 async def root():
-    return {"message": "欢迎来到拉分侠-垃圾分类系统"}
+    return {"message": "欢迎来到拉风侠-垃圾分类系统"}
 
 
 @app.on_event("startup")
@@ -48,6 +48,7 @@ async def startup_event():
     应用程序启动时执行的操作
     """
     db = next(get_db())
+    # next() 函数用于从生成器中获取下一个值。如果生成器已经耗尽（即没有更多的值可以返回），next() 会抛出一个 StopIteration 异常。
     init_db(db)
 
 

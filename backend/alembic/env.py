@@ -5,9 +5,8 @@ from sqlalchemy import pool
 
 from alembic import context
 from app.core.config import settings
-from app.models.base import Base
-from app.models.user import User
-from app.models.article import Article  # 确保导入所有模型
+from app.models.__init__ import *  # noqa: F401
+  # 确保导入所有模型
 
 config = context.config
 

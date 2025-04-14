@@ -1,17 +1,11 @@
-from sqlalchemy import Boolean, Column, Integer, String
+from datetime import datetime
+from sqlalchemy import Column, Integer, String, DateTime
+from app.models import Base
 
-from app.models.base import Base
-
-from sqlalchemy.orm import relationship
 class User(Base):
+    __tablename__ = "users"
+
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True, nullable=False)
-    username = Column(String, unique=True, index=True, nullable=False)
-    hashed_password = Column(String, nullable=False)
-    is_active = Column(Boolean(), default=True)
-    is_superuser = Column(Boolean(), default=False) 
-
-
-    # 关联文章模型
-    articles=relationship("Article",back_populates="author")
-
+    nickname = Column(String(50), index=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

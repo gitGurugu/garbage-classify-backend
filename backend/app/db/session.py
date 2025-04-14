@@ -14,3 +14,6 @@ def get_db():
         yield db
     finally:
         db.close() 
+
+
+# 生成器是一种特殊的迭代器，它可以通过 yield 关键字生成一系列值。生成器函数每次调用时，会从上次暂停的地方继续执行，直到遇到下一个 yield 语句。

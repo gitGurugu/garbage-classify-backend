@@ -1,104 +1,71 @@
-# from wechatpy.session.sqlalchemystorage import SQLAlchemyStorage
-# from wechatpy.exceptions import WechatError
-# from fastapi import HTTPException
-# from sqlalchemy.orm import Session
-# from typing import Optional
-# import httpx
-# from pydantic import BaseModel
+import requests
+from fastapi import HTTPException
+from sqlalchemy.orm import Session
 
-# from app.core.config import settings 
-# from app.models.wechat_user import WechatUser
-# from app.models.user import User
+from app.core.config import settings
+from app.models.user import User
+from app.models.wechat_user import WechatUser
+from app.core.security import create_access_token
+from datetime import datetime
 
-# class WechatCode2SessionResponse(BaseModel):
-#     openid: str
-#     session_key: str
-#     unionid: Optional[str] = None
-#     errcode: Optional[int] = None
-#     errmsg: Optional[str] = None
-
-# class WechatService:
-#     def __init__(self, app_id: str, app_secret: str):
-#         self.app_id = app_id
-#         self.app_secret = app_secret
-#         self.code2session_url = "https://api.weixin.qq.com/sns/jscode2session"
-
-#     async def code2session(self, code: str) -> WechatCode2SessionResponse:
-#         """
-#         通过 code 获取微信用户信息
-#         """
-#         async with httpx.AsyncClient() as client:
-#             params = {
-#                 "appid": self.app_id,
-#                 "secret": self.app_secret,
-#                 "js_code": code,
-#                 "grant_type": "authorization_code"
-#             }
-#             response = await client.get(self.code2session_url, params=params)
-#             data = response.json()
-            
-#             if "errcode" in data and data["errcode"] != 0:
-#                 raise HTTPException(
-#                     status_code=400,
-#                     detail=f"微信登录失败: {data['errmsg']}"
-#                 )
-                
-#             return WechatCode2SessionResponse(**data)
-
-#     def get_or_create_user(
-#         self,
-#         db: Session,
-#         wechat_data: WechatCode2SessionResponse
-#     ) -> User:
-#         """
-#         获取或创建用户
-#         """
-#         # 查找现有微信用户
-#         wechat_user = db.query(WechatUser).filter(
-#             WechatUser.openid == wechat_data.openid
-#         ).first()
+class WeChatService:
+    @staticmethod
+    async def login_with_code(db: Session, code: str):
+        # 微信登录凭证校验接口地址
+        url = "https://api.weixin.qq.com/sns/jscode2session"
+        params = {
+            "appid": settings.WECHAT_APP_ID,
+            "secret": settings.WECHAT_APP_SECRET,
+            "js_code": code,
+            "grant_type": "authorization_code"
+        }
         
-#         if wechat_user:
-#             return wechat_user.user
-            
-#         # 创建新用户
-#         user = User(
-#             nickname=f"微信用户_{wechat_data.openid[:8]}",
-#             is_active=True
-#         )
-#         db.add(user)
-#         db.flush()
+        response = requests.get(url, params=params)
+        result = response.json()
         
-#         # 创建微信用户关联
-#         wechat_user = WechatUser(
-#             user_id=user.id,
-#             openid=wechat_data.openid,
-#             unionid=wechat_data.unionid,
-#             session_key=wechat_data.session_key
-#         )
-#         db.add(wechat_user)
-#         db.commit()
+        if "errcode" in result:
+            raise HTTPException(status_code=400, detail="微信登录失败")
+            
+        open_id = result.get("openid")
+        # get 方法的主要作用是从字典中安全地获取一个键的值，如果该键不存在，可以返回一个默认值，而不是抛出 KeyError 异常。
+        session_key = result.get("session_key")
+        union_id = result.get("unionid")
         
-#         return user
+        # 查找或创建微信用户
+        wechat_user = db.query(WechatUser).filter(WechatUser.open_id == open_id).first()
+        
+        if not wechat_user:
+            # 创建新用户
+            now=datetime.utcnow()
+            user = User(
+                nickname=f"用户{open_id[:8]}", # 可以根据需求设置默认昵称
+                created_at=now,
+                updated_at=now
+            )
+            db.add(user)
+            db.flush()
+            
+            wechat_user = WechatUser(
+                open_id=open_id,
+                union_id=union_id,
+                session_key=session_key,
+                user_id=user.id,
+                created_at=now,
+                updated_at=now
+            )
+            db.add(wechat_user)
+            db.commit()
+        else:
+            # 更新session_key
+            wechat_user.session_key = session_key
+            wechat_user.updated_at = datetime.utcnow()
+            db.commit()
 
-# class WechatAuthService:
-#     def __init__(self, settings: WechatSettings):
-#         self.app_id = settings.WECHAT_APP_ID
-#         self.app_secret = settings.WECHAT_APP_SECRET
-
-#     async def login(self, db: Session, code: str):
-#         try:
-#             # 获取微信登录凭证
-#             session_info = await self.code_to_session(code)
-            
-#             # 获取或创建微信用户
-#             wechat_user = self.get_or_create_wechat_user(
-#                 db,
-#                 open_id=session_info['openid'],
-#                 session_key=session_info['session_key']
-#             )
-            
-#             return wechat_user
-            
-#         except WechatError as e:
-#             raise HTTPException(status_code=400, detail=str(e))
+        # 生成访问令牌
+        access_token = create_access_token(wechat_user.user_id)
+        
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "user_id": wechat_user.user_id
+        }

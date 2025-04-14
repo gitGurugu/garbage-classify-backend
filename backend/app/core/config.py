@@ -39,10 +39,9 @@ class Settings(BaseSettings):
     # OPENAI_BASE_URL: str = "https://xiaoai.plus/v1/"
 
 
-    # # 微信小程序配置
-    # WECHAT_APP_ID: str = ""
-    # WECHAT_APP_SECRET: str = ""
-    # WECHAT_TOKEN_EXPIRE_DAYS: int = 30
+    # 微信登录授权
+    WECHAT_APP_ID: str = ""  # 你的小程序 AppID
+    WECHAT_APP_SECRET: str = ""  # 你的小程序 AppSecret
     
     # @validator("WECHAT_APP_ID", "WECHAT_APP_SECRET", pre=True)
     # def validate_wechat_config(cls, v: str) -> str:
