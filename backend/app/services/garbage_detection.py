@@ -111,3 +111,19 @@ class GarbageDetectionService:
         'image_id': 0
     }
 ]"""
+
+
+
+
+"""
+Page({
+  // ...existing code...
+  showResult(result) {
+    const baseUrl = 'http://your-backend-url'  // 替换为实际的后端地址
+    this.setData({
+      processedImageUrl: `${baseUrl}${result.data.image_url}`,
+      audioUrl: `${baseUrl}${result.data.audio_url}`
+    })
+  }
+})
+"""

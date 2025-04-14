@@ -17,7 +17,7 @@ async def detect_garbage(
     return {
         "success": True,
         "data": result 
-    }
+    } #框架会自动将其序列化为 JSON 格式并发送给客户端，如果字典的键不是字符串，FastAPI 会自动将键转换为字符串。
     """
     class ProcessedFilesResponse(TypedDict):
         image_url: str
