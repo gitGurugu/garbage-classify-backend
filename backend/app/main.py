@@ -8,7 +8,7 @@ from app.core.logging import setup_logging
 from app.core.middleware import setup_middlewares
 from app.db.init_db import init_db
 from app.db.session import get_db
-
+from fastapi.staticfiles import StaticFiles
 # 设置日志
 setup_logging()
 
@@ -51,6 +51,10 @@ async def startup_event():
     # next() 函数用于从生成器中获取下一个值。如果生成器已经耗尽（即没有更多的值可以返回），next() 会抛出一个 StopIteration 异常。
     init_db(db)
 
+
+    
+# 添加静态文件服务
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 if __name__ == "__main__":
     import uvicorn

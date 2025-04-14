@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.api_v1.endpoints import wechat
+from app.api.api_v1.endpoints import wechat ,garbage
 
 
 
@@ -11,6 +11,7 @@ api_router = APIRouter()
 # api_router.include_router(ai.router, prefix="/ai", tags=["ai"])
 # api_router.include_router(article.router, prefix="/article", tags=["articles"])
 api_router.include_router(wechat.router, prefix="/wechat", tags=["wechat"])
+api_router.include_router(garbage.router,prefix="/garbage",tags=["garbage"])
 
 
 

@@ -23,7 +23,7 @@ class Settings(BaseSettings):
             return v
         raise ValueError(v)
 
-    PROJECT_NAME: str = "拉分侠-垃圾检测系统"
+    PROJECT_NAME: str = "拉风侠-垃圾检测系统"
     
     # 数据库设置
     USE_SQLITE: bool = os.getenv("USE_SQLITE", "").lower() in ("true", "1", "t")
@@ -48,8 +48,22 @@ class Settings(BaseSettings):
     #     if not v:
     #         raise ValueError("请在.env文件中配置微信小程序相关信息")
     #     return v
-    
-
+     # 图片处理和语音配置
+    PROCESSED_IMAGES_DIR: str = "static/processed_images"
+    AUDIO_OUTPUT_DIR: str = "static/audio"
+    GARBAGE_CATEGORIES: Dict[int, str] = {
+        0: "可回收物",
+        1: "有害垃圾",
+        2: "厨余垃圾",
+        3: "其他垃圾"
+    }
+    CATEGORY_DESCRIPTIONS: Dict[str, str] = {
+        "可回收物": "请投放到可回收物收集容器",
+        "有害垃圾": "请投放到有害垃圾收集点",
+        "厨余垃圾": "请投放到厨余垃圾收集容器",
+        "其他垃圾": "请投放到其他垃圾收集容器"
+    }
+    YOLO_MODEL_PATH: str = "best.pt"  # YOLOv11模型的路径
 
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:

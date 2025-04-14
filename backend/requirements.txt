@@ -41,6 +41,11 @@ aiohttp==3.8.5
 requests==2.31.0
 
 # 其他工具
-python-multipart==0.0.6
+
 python-magic==0.4.27
-aiofiles==23.2.1
+aiofiles==24.1.0
+
+
+# 图像识别和语音
+
+ultralytics==8.3.107

@@ -19,7 +19,7 @@ class AIAssistant:
                 messages=[
                     {
                         "role": "system",
-                        "content": "你是一个手语助手，帮助我来学习手语的相关知识。"
+                        "content": "你是一个垃圾分类助手，帮助我来学习垃圾分类的相关知识。"
                     },
                     {
                         "role": "user",
