@@ -49,3 +49,11 @@ aiofiles==24.1.0
 # 图像识别和语音
 
 ultralytics==8.3.107
+
+
+# AI
+openai==1.74.0
+
+
+# 图床
+qiniu==7.16.0

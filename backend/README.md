@@ -1,6 +1,6 @@
-# 无声之韵后端
+# garbage-hero后端
 
-这是无声之韵——智能手语双向翻译系统的后端 API。
+这是统garbage-hero的后端 API。
 
 ## 技术栈
 

@@ -34,10 +34,10 @@ class Settings(BaseSettings):
     SQLALCHEMY_DATABASE_URI: Optional[str] = None
 
 
-    # # ai_key_settings
-    # OPENAI_API_KEY: str
-    # OPENAI_BASE_URL: str = "https://xiaoai.plus/v1/"
-
+    # ai_key_settings
+    OPENAI_API_KEY: str
+    OPENAI_BASE_URL: str = "https://xiaoai.plus/v1/"
+    OPENAI_MODEL: str = "gpt-3.5-turbo"  # 默认使用 gpt-3.5-turbo 模型
 
     # 微信登录授权
     WECHAT_APP_ID: str = ""  # 你的小程序 AppID
@@ -64,6 +64,12 @@ class Settings(BaseSettings):
         "其他垃圾": "请投放到其他垃圾收集容器"
     }
     YOLO_MODEL_PATH: str = "best.pt"  # YOLOv11模型的路径
+
+    # 七牛云配置
+    QINIU_ACCESS_KEY: str = ""
+    QINIU_SECRET_KEY: str = ""
+    QINIU_BUCKET_NAME: str = ""
+    QINIU_DOMAIN: str = ""  # 你的七牛云域名，例如 http://cdn.example.com
 
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:

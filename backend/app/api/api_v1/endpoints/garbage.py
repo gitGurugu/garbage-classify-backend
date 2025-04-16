@@ -1,26 +1,31 @@
-from fastapi import APIRouter, UploadFile, File, Depends
-from fastapi.staticfiles import StaticFiles
-from sqlalchemy.orm import Session
-from app.utils import deps
+from fastapi import APIRouter, UploadFile, File
+from pydantic import BaseModel
+from typing import List
 from app.services.garbage_detection import GarbageDetectionService
 
-router = APIRouter()
-detection_service = GarbageDetectionService()#服务是类先实例化一个对象
+class GarbageDetectionResponse(BaseModel):
+    code: int = 0
+    data: dict = {}
+    msg: str = "success"
 
-@router.post("/detect")
+router = APIRouter()
+detection_service = GarbageDetectionService()
+
+@router.post("/detect", response_model=GarbageDetectionResponse)
 async def detect_garbage(
-    file: UploadFile = File(...),#File(...) 表示这是一个文件上传参数，并且是必填的
-    #db: Session = Depends(deps.get_db)
+    file: UploadFile = File(...)
 ):
     """垃圾图像识别接口"""
-    result = await detection_service.process_image(file) #->str(image_url_path,audio_url_path)
-    return {
-        "success": True,
-        "data": result 
-    } #框架会自动将其序列化为 JSON 格式并发送给客户端，如果字典的键不是字符串，FastAPI 会自动将键转换为字符串。
-    """
-    class ProcessedFilesResponse(TypedDict):
-        image_url: str
-        audio_url: str
-        categories: List[str]
-    """
+    try:
+        result = await detection_service.process_image(file)
+        return GarbageDetectionResponse(
+            code=0,
+            data=result,
+            msg="识别成功"
+        )
+    except Exception as e:
+        return GarbageDetectionResponse(
+            code=1,
+            data={},
+            msg=f"识别失败: {str(e)}"
+        )
