@@ -6,4 +6,5 @@ from app.models.base import Base  # noqa
 # 然后导入所有模型，确保它们在SQLAlchemy中注册
 from app.models.user import User  # noqa 
 from app.models.wechat_user import WechatUser  # noqa
-__all__ = ['Base', 'User', 'WechatUser']
+from app.models.garbage_item import GarbageItem
+__all__ = ['Base', 'User', 'WechatUser', 'GarbageItem']

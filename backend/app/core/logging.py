@@ -87,3 +87,6 @@ def setup_logging(config: Optional[LoggingConfig] = None) -> None:
 
     # 记录启动日志
     logger.info("日志系统已初始化") 
+
+    str='11'
+    

@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.api_v1.endpoints import wechat ,garbage,ai
+from app.api.api_v1.endpoints import wechat ,garbage,ai,garbage_item
 
 
 
@@ -12,7 +12,7 @@ api_router.include_router(ai.router, prefix="/ecosort", tags=["ai"])
 # api_router.include_router(article.router, prefix="/article", tags=["articles"])
 api_router.include_router(wechat.router, prefix="/user", tags=["user"])
 api_router.include_router(garbage.router,prefix="/ecosort",tags=["garbage"])
-
+api_router.include_router(garbage_item.router,prefix="/ecosort",tags=["garbage"])
 
 
 
