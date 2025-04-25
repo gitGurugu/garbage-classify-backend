@@ -17,7 +17,7 @@ async def detect_garbage(
 ):
     """垃圾图像识别接口"""
     try:
-        result = await detection_service.process_image(file)
+        result = await detection_service.process_image(file)   #Dict
         return GarbageDetectionResponse(
             code=0,
             data=result,
