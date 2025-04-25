@@ -1,28 +1,29 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from typing import List
 from app.utils import deps
-from app.schemas.garbage import GarbageSearchResponse
+from app.schemas.garbage_item import SearchRequest
 from app.services.garbage_search import GarbageSearchService
+from app.models.user import User
 
 router = APIRouter()
 
-@router.get("/search-list", response_model=GarbageSearchResponse)
+@router.post("/text",summary="搜索垃圾分类信息", tags=["garbage_item"])
 async def search_garbage(
-    keyword: str = Query(..., description="搜索关键词"),
+    request: SearchRequest,
+    current_user: User = Depends(deps.get_current_user),
     db: Session = Depends(deps.get_db)
 ):
     """搜索垃圾分类信息"""
     try:
-        items = await GarbageSearchService.search_items(db, keyword)
-        return GarbageSearchResponse(
-            code=0,
-            data=items,
-            msg="查询成功"
-        )
+        items = await GarbageSearchService.search_items(db, request.keyword, current_user)
+        return {
+            "code": 0,
+            "data": items,
+            "msg": "查询成功"
+        }
     except Exception as e:
-        return GarbageSearchResponse(
-            code=1,
-            data=[],
-            msg=f"查询失败: {str(e)}"
-        )
+        return {
+            "code": 1,
+            "data": [],
+            "msg": f"查询失败: {str(e)}"
+        }

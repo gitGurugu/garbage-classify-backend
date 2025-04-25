@@ -7,4 +7,5 @@ from app.models.base import Base  # noqa
 from app.models.user import User  # noqa 
 from app.models.wechat_user import WechatUser  # noqa
 from app.models.garbage_item import GarbageItem
-__all__ = ['Base', 'User', 'WechatUser', 'GarbageItem']
+from app.models.history import SearchHistory  # noqa
+__all__ = ['Base', 'User', 'WechatUser', 'GarbageItem', 'SearchHistory']

@@ -1,5 +1,10 @@
+from pydantic import BaseModel
 from typing import List
 from pydantic import BaseModel
+
+
+class SearchRequest(BaseModel):
+    keyword: str
 
 class GarbageItemBase(BaseModel):
     id: int
