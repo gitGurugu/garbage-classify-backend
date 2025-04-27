@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class SearchRequest(BaseModel):
-    keyword: str
+    text: str
 
 class GarbageItemBase(BaseModel):
     id: int

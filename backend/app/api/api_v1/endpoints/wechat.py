@@ -65,7 +65,7 @@ async def upload_avatar(
 @router.post("/update",summary="更新用户信息")
 async def update_user_info(
     name: Optional[str] = Form(None),
-    avatar: Optional[UploadFile] = File(None),
+    avatar_url: Optional[str] = None,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -76,31 +76,31 @@ async def update_user_info(
             current_user.nickname = name
 
         # 处理头像上传
-        if avatar:
-            # 初始化七牛云
-            q = Auth(settings.QINIU_ACCESS_KEY, settings.QINIU_SECRET_KEY)
-            token = q.upload_token(settings.QINIU_BUCKET_NAME)
+        if avatar_url:
+            # # 初始化七牛云
+            # q = Auth(settings.QINIU_ACCESS_KEY, settings.QINIU_SECRET_KEY)
+            # token = q.upload_token(settings.QINIU_BUCKET_NAME)
             
-            # 读取文件内容
-            file_content = await avatar.read()
+            # # 读取文件内容
+            # file_content = await avatar.read()
             
-            # 生成文件名
-            file_ext = avatar.filename.split('.')[-1]
-            key = f"avatars/{current_user.id}_{int(time.time())}.{file_ext}"
+            # # 生成文件名
+            # file_ext = avatar.filename.split('.')[-1]
+            # key = f"avatars/{current_user.id}_{int(time.time())}.{file_ext}"
             
-            # 上传到七牛云
-            ret, info = put_data(token, key, file_content)
+            # # 上传到七牛云
+            # ret, info = put_data(token, key, file_content)
             
-            if info.status_code != 200:
-                raise HTTPException(status_code=400, detail="头像上传失败")
+            # if info.status_code != 200:
+            #     raise HTTPException(status_code=400, detail="头像上传失败")
                 
-            current_user.avatar_url = key
+            current_user.avatar_url = avatar_url  # 直接使用传入的URL
 
         # 提交更改
         db.commit()
         
         # 构建返回数据
-        avatar_url = f"{settings.QINIU_DOMAIN}/{current_user.avatar_url}" if current_user.avatar_url else ""
+        # avatar_url = f"{settings.QINIU_DOMAIN}/{current_user.avatar_url}" if current_user.avatar_url else ""
         
         return {
             "code": 0,
@@ -123,10 +123,14 @@ async def get_user_info(
     """获取当前登录用户信息"""
     try:
         # 构建完整的头像URL
-        avatar_url = ""
+        # avatar_url = ""
+        avatar_url = "http://image.curryking123.online/%E7%9B%B4%E6%8E%A5%E7%BB%99%E9%93%BE%E6%8E%A5/%E5%A4%B4%E5%83%8F%20%E7%94%B7%E5%AD%A9.png"
+
         if current_user.avatar_url:
-            avatar_url = f"{settings.QINIU_DOMAIN}/{current_user.avatar_url}"
-            
+            # avatar_url = "http://image.curryking123.online/%E7%9B%B4%E6%8E%A5%E7%BB%99%E9%93%BE%E6%8E%A5/%E5%A4%B4%E5%83%8F%20%E7%94%B7%E5%AD%A9.png"
+
+            # avatar_url = f"{settings.QINIU_DOMAIN}/{current_user.avatar_url}"
+            avatar_url = current_user.avatar_url  # 直接使用存储的URL
         return {
             "code": 0,
             "data": {
@@ -140,4 +144,31 @@ async def get_user_info(
             "code": 1,
             "data": {},
             "msg": f"获取用户信息失败: {str(e)}"
+        }
+    
+
+@router.get("/qiniu_token", summary="获取七牛云上传token")
+async def get_qiniu_token(
+    current_user: User = Depends(get_current_user)
+):
+    """获取七牛云上传token"""
+    try:
+        # 初始化七牛云
+        q = Auth(settings.QINIU_ACCESS_KEY, settings.QINIU_SECRET_KEY)
+        
+        # 生成上传token
+        token = q.upload_token(settings.QINIU_BUCKET_NAME)
+        
+        return {
+            "code": 0,
+            "data": {
+                "token": token
+            },
+            "msg": "获取七牛云上传token成功"
+        }
+    except Exception as e:
+        return {
+            "code": 1,
+            "data": {},
+            "msg": f"获取七牛云上传token失败: {str(e)}"
         }

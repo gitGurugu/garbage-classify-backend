@@ -8,6 +8,10 @@ from fastapi import UploadFile #用于处理上传的文件
 from gtts import gTTS #导入gTTS类
 from app.core.config import settings
 from typing import List
+from loguru import logger #用于记录日志
+from app.services.ai_service import AIAssistant
+
+ai_assistant = AIAssistant()
 class GarbageDetectionService:
     def __init__(self):
         Path(settings.PROCESSED_IMAGES_DIR).mkdir(parents=True, exist_ok=True) #如果 settings.PROCESSED_IMAGES_DIR 指定的目录不存在，则创建该目录。
@@ -50,21 +54,27 @@ class GarbageDetectionService:
             #boxes就是检测到的边界框，data就是边界框的坐标和置信度等信息。
             cls = int(r[5]) #[x_min, y_min, x_max, y_max, confidence, class_id]
             conf = float(r[4])
-            if conf > 0.5 and settings.GARBAGE_CATEGORIES[cls] not in detected_categories:
+            if conf > 0.1 and settings.GARBAGE_CATEGORIES[cls] not in detected_categories:
                 detected_categories.append(settings.GARBAGE_CATEGORIES[cls])
-
+            logger.info(f"检测到垃圾类别: {settings.GARBAGE_CATEGORIES[cls]}, 置信度: {conf:.2f}")
         # 生成语音提示
-        audio_text = self.generate_audio_text(detected_categories)
-        audio_filename = f"{uuid.uuid4()}.mp3"
-        audio_path = os.path.join(settings.AUDIO_OUTPUT_DIR, audio_filename)
+        # audio_text = self.generate_audio_text(detected_categories)
+        # audio_filename = f"{uuid.uuid4()}.mp3"
+        # audio_path = os.path.join(settings.AUDIO_OUTPUT_DIR, audio_filename)
         
-        tts = gTTS(text=audio_text, lang='zh-cn')
-        tts.save(audio_path)
+        # tts = gTTS(text=audio_text, lang='zh-cn')
+        # tts.save(audio_path)
+        # 添加所有检测结果的汇总日志
+        logger.info(f"检测结果汇总 - 识别出的垃圾类别: {detected_categories}")
+        message=f'这是您拍摄的垃圾图片，识别出的垃圾类别有：{detected_categories}，该怎么处理？请给出简短的意见，不超过30字。'
 
+        result = await ai_assistant.get_response(message)
         return {
             "image_url": f"/static/processed_images/{image_filename}",
-            "audio_url": f"/static/audio/{audio_filename}",
+            "content": result,
+            # "audio_url": f"/static/audio/{audio_filename}",
             "categories": detected_categories
+
         }
         """
         class ProcessedFilesResponse(TypedDict):

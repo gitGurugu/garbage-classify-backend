@@ -71,9 +71,9 @@ class WeChatService:
         user = db.query(User).filter(User.id == wechat_user.user_id).first()
         
         # 构建完整的头像URL
-        avatar_url = ""
-        if user.avatar_url:
-            avatar_url = f"{settings.QINIU_DOMAIN}/{user.avatar_url}"
+        avatar_url = "http://image.curryking123.online/%E7%9B%B4%E6%8E%A5%E7%BB%99%E9%93%BE%E6%8E%A5/%E5%A4%B4%E5%83%8F%20%E7%94%B7%E5%AD%A9.png"
+        # if user.avatar_url:
+        #     avatar_url = f"{settings.QINIU_DOMAIN}/{user.avatar_url}"
         
         return {
             "code": 0,

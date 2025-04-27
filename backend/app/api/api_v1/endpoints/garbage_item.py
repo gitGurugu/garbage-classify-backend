@@ -15,7 +15,7 @@ async def search_garbage(
 ):
     """搜索垃圾分类信息"""
     try:
-        items = await GarbageSearchService.search_items(db, request.keyword, current_user)  #GarbageItem
+        items = await GarbageSearchService.search_items(db, request.text, current_user)  #GarbageItem
         return {
             "code": 0,
             "data": items,
